@@ -1,5 +1,5 @@
-# app.py — Divine Idol Classifier (Final Ancient Themed + Styled Sidebar)
-# ----------------------------------------------------------------------
+# app.py — Divine Idol Classifier (Final + HuggingFace Fix)
+# ---------------------------------------------------------
 import os
 import streamlit as st
 import tensorflow as tf
@@ -8,35 +8,33 @@ from tensorflow.keras.applications.efficientnet import preprocess_input
 import numpy as np
 from PIL import Image
 import json
+from huggingface_hub import hf_hub_download
 
 # ---- Safety Fixes ----
 os.environ["OBJC_DISABLE_INITIALIZE_FORK_SAFETY"] = "YES"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 os.environ["OMP_NUM_THREADS"] = "1"
-import tensorflow as tf
-import requests
-import os
-import streamlit as st
 
-MODEL_URL = "https://huggingface.co/spaces/Harshal1804/classification-and-identification-of-idols/blob/main/idols_classifier_fixed.keras"
-MODEL_PATH = "idols_classifier_fixed.keras"
+# ---- Model + Class Info ----
+MODEL_REPO = "Harshal1804/classification-and-identification-of-idols"  # ✅ must be your MODEL repo name (not Space!)
+MODEL_FILE = "idols_classifier_fixed.keras"
+CLASS_NAMES_PATH = "class_names.json"
+IMG_SIZE = (224, 224)
 
 @st.cache_resource
 def load_model():
-    # Download model if not already present locally
-    if not os.path.exists(MODEL_PATH):
-        with st.spinner("🔽 Downloading model from Hugging Face..."):
-            response = requests.get(MODEL_URL)
-            response.raise_for_status()
-            with open(MODEL_PATH, "wb") as f:
-                f.write(response.content)
-            st.success("✅ Model downloaded successfully!")
+    with st.spinner("🔽 Downloading model from Hugging Face Hub..."):
+        model_path = hf_hub_download(repo_id=MODEL_REPO, filename=MODEL_FILE)
+        model = tf.keras.models.load_model(model_path)
+        st.success("✅ Model loaded successfully!")
+        return model
 
-    # Load model
-    return tf.keras.models.load_model(MODEL_PATH)
+@st.cache_resource
+def load_class_names():
+    with open(CLASS_NAMES_PATH) as f:
+        return json.load(f)
 
 model = load_model()
-
 class_names = load_class_names()
 
 st.set_page_config(page_title="Divine Idol Classifier", page_icon="🪔", layout="wide")
@@ -59,73 +57,7 @@ html, body, [class*="stApp"] {
   100%{background-position:0% 50%;}
 }
 
-/* ---- Diya Glow ---- */
-.diya {
-  width:80px;height:80px;margin:10px auto;
-  background:radial-gradient(circle,rgba(255,200,50,0.8) 10%,rgba(255,120,0,0.4) 40%,rgba(0,0,0,0) 70%);
-  border-radius:50%;
-  animation:glow 1.5s infinite alternate;
-  filter:blur(6px);
-}
-@keyframes glow {
-  0%{opacity:0.85;transform:scale(1);}
-  50%{opacity:1;transform:scale(1.1);}
-  100%{opacity:0.8;transform:scale(0.95);}
-}
-
-/* ---- FILE UPLOADER ---- */
-[data-testid="stFileUploader"] section{
-  background:linear-gradient(135deg,#c79a63,#f5deb3,#c79a63);
-  color:#3b200a;border:3px dashed #8b4513;border-radius:18px;
-  padding:1.2rem;
-  box-shadow:0 0 15px rgba(255,200,100,0.4);
-  transition:all .3s ease-in-out;
-}
-[data-testid="stFileUploader"] section:hover{
-  background:linear-gradient(135deg,#d4a76a,#ffebc1,#c79a63);
-  box-shadow:0 0 25px rgba(255,215,100,.7);
-  border-color:#b87333;
-  transform:scale(1.02);
-}
-[data-testid="stFileUploader"] label{
-  color:#4b2b16!important;
-  font-weight:600;
-  font-size:1.05rem;
-}
-
-/* ---- PREDICTION CARDS ---- */
-.prediction-card{
-  background:linear-gradient(145deg,#f7e3b3,#e2c28d);
-  border-radius:15px;padding:1rem;text-align:center;
-  box-shadow:0 2px 10px rgba(0,0,0,.25);
-  transition:transform .3s,box-shadow .3s;
-}
-.prediction-card:hover{
-  transform:scale(1.05);
-  box-shadow:0 4px 20px rgba(255,180,80,.6);
-}
-.stProgress>div>div>div>div{
-  background-image:linear-gradient(to right,#ff9f0f,#b87333);
-}
-.result-text {
-  color:#ffef9f;
-  font-size:1.4rem;
-  font-weight:600;
-  text-shadow:0 0 12px rgba(255,230,120,0.9);
-}
-.idol-info{
-  margin-top:18px;
-  border-radius:12px;
-  padding:1rem;
-  text-align:center;
-  box-shadow:0 4px 15px rgba(0,0,0,0.25);
-  color:#2b1a09;
-  font-size:1.05rem;
-  font-weight:500;
-  border:2px solid rgba(255,215,128,0.7);
-}
-
-/* ---- SIDEBAR ANCIENT THEME ---- */
+/* Sidebar styling */
 section[data-testid="stSidebar"] {
   background: linear-gradient(180deg, #8b5e3c, #b87b4b, #e8c07d);
   border-right: 3px solid rgba(255,215,128,0.5);
@@ -143,16 +75,6 @@ section[data-testid="stSidebar"] p,
 section[data-testid="stSidebar"] span {
   color: #fff3b0 !important;
 }
-section[data-testid="stSidebar"] .stRadio label div {
-  background: rgba(255,245,200,0.1);
-  padding: 0.3rem 0.8rem;
-  border-radius: 8px;
-  transition: all 0.2s ease-in-out;
-}
-section[data-testid="stSidebar"] .stRadio label:hover div {
-  background: rgba(255,230,150,0.2);
-  transform: scale(1.05);
-}
 </style>
 """, unsafe_allow_html=True)
 
@@ -166,7 +88,6 @@ st.markdown("""
   box-shadow:0 5px 20px rgba(0,0,0,0.4);
   border:3px solid rgba(255,215,128,0.5);
 ">
-  <div class='diya' style="margin-bottom:12px;"></div>
   <h1 style="margin:0;color:#fff8dc;text-shadow:0 0 15px rgba(255,210,100,0.9);
              font-size:2.6rem;letter-spacing:1px;">
     🕉️ Divine Idol Classifier
@@ -175,10 +96,6 @@ st.markdown("""
             text-shadow:0 0 10px rgba(255,240,180,0.9);">
     Enlightened by AI — Discover Vishnu, Mahadev, or Sursundari 🔱
   </p>
-  <div style="height:4px;width:60%;margin:15px auto;
-              background:linear-gradient(90deg,rgba(255,215,128,0.8),
-              rgba(255,230,180,0.3),rgba(255,215,128,0.8));
-              border-radius:50px;"></div>
 </header>
 """, unsafe_allow_html=True)
 
@@ -212,53 +129,31 @@ idol_info = {
 if mode == "Single Image":
     file = st.file_uploader("📸 Upload Idol Image", type=["jpg","jpeg","png"])
     if file:
-        c1, c2 = st.columns([1, 1.3])
-        with c1:
-            img = Image.open(file).convert("RGB")
-            st.image(img, caption="Uploaded Idol", use_container_width=True)
-        with c2:
-            st.subheader("🔮 Prediction Results")
-            probs, top3 = predict(img)
-            main_label, main_conf = top3[0]
-            key = main_label.lower().strip()
-            info = idol_info.get(key, {"text": "No information available.",
-                                       "bg": "linear-gradient(145deg,#f8e7c1,#e7c991)"})
-            st.markdown(f"<p class='result-text'>✨ Most likely: <b>{main_label}</b> ({main_conf*100:.2f}%)</p>", unsafe_allow_html=True)
-            st.markdown(f"<div class='idol-info' style='background:{info['bg']};'><b>{main_label}</b>: {info['text']}</div>", unsafe_allow_html=True)
-            st.markdown("### 🪷 Confidence Breakdown")
-            for name, prob in zip(class_names, probs):
-                st.write(f"**{name}**: {prob*100:.2f}%")
-                st.progress(float(prob))
-            st.markdown("### 🏛️ Top 3 Predictions")
-            c1, c2, c3 = st.columns(3)
-            for (lbl, conf), col in zip(top3, [c1, c2, c3]):
-                col.markdown(f"<div class='prediction-card'><h4>{lbl}</h4><p>{conf*100:.2f}%</p></div>", unsafe_allow_html=True)
+        img = Image.open(file).convert("RGB")
+        st.image(img, caption="Uploaded Idol", use_container_width=True)
+        st.subheader("🔮 Prediction Results")
+        probs, top3 = predict(img)
+        main_label, main_conf = top3[0]
+        key = main_label.lower().strip()
+        info = idol_info.get(key, {"text": "No information available.",
+                                   "bg": "linear-gradient(145deg,#f8e7c1,#e7c991)"})
+        st.markdown(f"<p style='color:#ffef9f;font-size:1.4rem;text-shadow:0 0 10px gold;'>✨ Most likely: <b>{main_label}</b> ({main_conf*100:.2f}%)</p>", unsafe_allow_html=True)
+        st.markdown(f"<div style='margin-top:18px;border-radius:12px;padding:1rem;text-align:center;background:{info['bg']};color:#2b1a09;border:2px solid rgba(255,215,128,0.7);box-shadow:0 4px 15px rgba(0,0,0,0.25);'><b>{main_label}</b>: {info['text']}</div>", unsafe_allow_html=True)
 
-else:
+elif mode == "Compare Two Images":
     c1, c2 = st.columns(2)
     with c1:
         f1 = st.file_uploader("📷 Upload Image 1", type=["jpg","jpeg","png"], key="1")
     with c2:
         f2 = st.file_uploader("📸 Upload Image 2", type=["jpg","jpeg","png"], key="2")
     if f1 and f2:
-        c1, c2 = st.columns(2)
-        with c1:
-            img1 = Image.open(f1).convert("RGB")
-            st.image(img1, caption="Image 1", use_container_width=True)
-            p1, t1 = predict(img1)
-            label1, conf1 = t1[0]
-            st.markdown(f"<p class='result-text'>✨ {label1} ({conf1*100:.2f}%)</p>", unsafe_allow_html=True)
-        with c2:
-            img2 = Image.open(f2).convert("RGB")
-            st.image(img2, caption="Image 2", use_container_width=True)
-            p2, t2 = predict(img2)
-            label2, conf2 = t2[0]
-            st.markdown(f"<p class='result-text'>✨ {label2} ({conf2*100:.2f}%)</p>", unsafe_allow_html=True)
-        st.markdown("### 📊 Confidence Comparison")
-        for i, name in enumerate(class_names):
-            st.write(f"**{name}**")
-            c1, c2 = st.columns(2)
-            c1.progress(float(p1[i])); c2.progress(float(p2[i]))
+        img1 = Image.open(f1).convert("RGB")
+        img2 = Image.open(f2).convert("RGB")
+        st.image([img1, img2], caption=["Image 1", "Image 2"], use_container_width=True)
+        p1, t1 = predict(img1)
+        p2, t2 = predict(img2)
+        st.markdown(f"<p style='color:#ffef9f;font-size:1.2rem;'>✨ Image 1: {t1[0][0]} ({t1[0][1]*100:.2f}%)</p>", unsafe_allow_html=True)
+        st.markdown(f"<p style='color:#ffef9f;font-size:1.2rem;'>✨ Image 2: {t2[0][0]} ({t2[0][1]*100:.2f}%)</p>", unsafe_allow_html=True)
 
 # ---- Footer ----
 st.markdown("""
@@ -278,3 +173,4 @@ st.markdown("""
   © 2025 • Temple-Themed AI • Powered by TensorFlow & Streamlit
 </footer>
 """, unsafe_allow_html=True)
+
