@@ -69,7 +69,8 @@ The model currently classifies images into the following categories:
 ## 🔍 Single Image Prediction
 
 
-![Prediction](screenshots/prediction-page.png)
+![Prediction](screenshots/prediction.png)
+
 > Displays
 
 - Uploaded Image
@@ -78,13 +79,15 @@ The model currently classifies images into the following categories:
 - Top 3 Predictions
 - Probability Distribution
 
-```text
-screenshots/prediction.png
-```
+
 
 ---
 
 ## ⚖️ Compare Two Images
+
+
+
+![Compare Mode](screenshots/compare-mode.png)
 
 Users can upload two different idol images and compare:
 
@@ -92,9 +95,9 @@ Users can upload two different idol images and compare:
 - Confidence Scores
 - Confidence Comparison Graph
 
-```text
-screenshots/compare.png
-```
+## 📊 Confidence Comparison
+
+![Comparison Result](screenshots/comparison-results.png)
 
 ---
 
