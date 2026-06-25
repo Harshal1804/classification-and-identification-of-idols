@@ -56,11 +56,11 @@ The model currently classifies images into the following categories:
 
 ## 🏠 Home Page
 
-> Place your screenshot here
 
-```text
+
+
 screenshots/home-page.png
-```
+
 
 ---
 
