@@ -97,9 +97,6 @@ Users can upload two different idol images and compare:
 - Confidence Scores
 - Confidence Comparison Graph
 
-## 📊 Confidence Comparison
-
-![Comparison Result](screenshots/comparison-result.png)
 
 ---
 
