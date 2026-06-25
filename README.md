@@ -59,7 +59,7 @@ The model currently classifies images into the following categories:
 
 
 
-![Home Page](screenshots/home-page.png)
+![Home Page](screenshots/homepage.png)
 
 
 
