@@ -68,6 +68,8 @@ The model currently classifies images into the following categories:
 
 ## 🔍 Single Image Prediction
 
+
+![Prediction](screenshots/prediction-page.png)
 > Displays
 
 - Uploaded Image
