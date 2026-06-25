@@ -69,6 +69,8 @@ The model currently classifies images into the following categories:
 ## 🔍 Single Image Prediction
 
 
+
+
 ![Prediction](screenshots/prediction.png)
 
 > Displays
@@ -97,7 +99,7 @@ Users can upload two different idol images and compare:
 
 ## 📊 Confidence Comparison
 
-![Comparison Result](screenshots/comparison-results.png)
+![Comparison Result](screenshots/comparison-result.png)
 
 ---
 
