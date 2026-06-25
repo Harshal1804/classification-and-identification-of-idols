@@ -57,9 +57,9 @@ The model currently classifies images into the following categories:
 ## 🏠 Home Page
 
 
+<img src="/screenshots/home-page.png"/>
 
 
-screenshots/home-page.png
 
 
 ---
